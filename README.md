@@ -16,6 +16,8 @@ Because the license requires this, I will put the change log here:
 * Cleaned up `setup.py`
 * Removed useless tests
 * Removed Google's content security policy, this is for a backend!
+* Removed content security policies in general
+* Removed force `HTTPS` because our hosting provider has SSL
 
 ## Disclaimer
 

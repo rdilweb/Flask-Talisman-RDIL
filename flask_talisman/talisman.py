@@ -62,8 +62,6 @@ class Talisman(object):
             app: A Flask application.
             feature_policy: A string or dictionary describing the
                 feature policy for the response.
-            force_https: Redirects non-http requests to https, disabled in
-                debug mode.
             force_https_permanent: Uses 301 instead of 302 redirects.
             frame_options: Sets the X-Frame-Options header, defaults to
                 SAMEORIGIN.
