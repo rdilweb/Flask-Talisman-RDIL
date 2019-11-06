@@ -13,3 +13,4 @@ Because the license requires this, I will put the change log here:
 * Removed the example app
 * **Dropped Python 2 support**
 * Added Gitpod configuration and Dockerfile
+* Cleaned up `setup.py`
