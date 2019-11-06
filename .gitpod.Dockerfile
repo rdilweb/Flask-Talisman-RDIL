@@ -4,7 +4,7 @@ USER root
 
 RUN \
     python3 -m pip install \
+        pip \
         setuptools \
         wheel \
-        twine \
-        nox
+        twine

@@ -14,14 +14,14 @@
 
 from .talisman import (
     ALLOW_FROM, DEFAULT_CSP_POLICY, DEFAULT_FEATURE_POLICY, DENY,
-    GOOGLE_CSP_POLICY, SAMEORIGIN, Talisman)
+    SAMEORIGIN, Talisman
+)
 
 __all__ = (
     'ALLOW_FROM',
     'DEFAULT_CSP_POLICY',
     'DEFAULT_FEATURE_POLICY',
     'DENY',
-    'GOOGLE_CSP_POLICY',
     'SAMEORIGIN',
     'Talisman',
 )

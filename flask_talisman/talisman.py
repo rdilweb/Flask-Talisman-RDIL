@@ -28,20 +28,6 @@ DEFAULT_CSP_POLICY = {
     'default-src': '\'self\'',
 }
 
-GOOGLE_CSP_POLICY = {
-    # Fonts from fonts.google.com
-    'font-src': '\'self\' themes.googleusercontent.com *.gstatic.com',
-    # <iframe> based embedding for Maps and Youtube.
-    'frame-src': '\'self\' www.google.com www.youtube.com',
-    # Assorted Google-hosted Libraries/APIs.
-    'script-src': '\'self\' ajax.googleapis.com *.googleanalytics.com '
-                  '*.google-analytics.com',
-    # Used by generated code from http://www.google.com/fonts
-    'style-src': '\'self\' ajax.googleapis.com fonts.googleapis.com '
-                 '*.gstatic.com',
-    'default-src': '\'self\' *.gstatic.com',
-}
-
 DEFAULT_FEATURE_POLICY = {
 }
 
