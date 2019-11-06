@@ -24,10 +24,6 @@ ONE_YEAR_IN_SECS = 31556926
 
 DEFAULT_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
-DEFAULT_CSP_POLICY = {
-    'default-src': '\'self\'',
-}
-
 DEFAULT_FEATURE_POLICY = {
 }
 
@@ -47,7 +43,6 @@ class Talisman(object):
             self,
             app,
             feature_policy=DEFAULT_FEATURE_POLICY,
-            force_https=True,
             force_https_permanent=False,
             force_file_save=False,
             frame_options=SAMEORIGIN,
@@ -58,7 +53,8 @@ class Talisman(object):
             strict_transport_security_include_subdomains=True,
             referrer_policy=DEFAULT_REFERRER_POLICY,
             session_cookie_secure=True,
-            session_cookie_http_only=True):
+            session_cookie_http_only=True
+        ):
         """
         Initialization.
 
@@ -95,7 +91,6 @@ class Talisman(object):
             self.feature_policy = OrderedDict(feature_policy)
         else:
             self.feature_policy = feature_policy
-        self.force_https = force_https
         self.force_https_permanent = force_https_permanent
 
         self.frame_options = frame_options
@@ -120,7 +115,6 @@ class Talisman(object):
 
         self.app = app
 
-        app.before_request(self._force_https)
         app.after_request(self._set_response_headers)
 
     def _get_local_options(self):
@@ -129,7 +123,6 @@ class Talisman(object):
         view_options = getattr(
             view_function, 'talisman_view_options', {})
 
-        view_options.setdefault('force_https', self.force_https)
         view_options.setdefault('frame_options', self.frame_options)
         view_options.setdefault(
             'frame_options_allow_from', self.frame_options_allow_from)
@@ -138,33 +131,6 @@ class Talisman(object):
         )
 
         return view_options
-
-    def _force_https(self):
-        """Redirect any non-https requests to https.
-
-        Based largely on flask-sslify.
-        """
-
-        if self.session_cookie_secure:
-            if not self.app.debug:
-                self.app.config['SESSION_COOKIE_SECURE'] = True
-
-        criteria = [
-            self.app.debug,
-            flask.request.is_secure,
-            flask.request.headers.get('X-Forwarded-Proto', 'http') == 'https',
-        ]
-
-        local_options = self._get_local_options()
-
-        if local_options['force_https'] and not any(criteria):
-            if flask.request.url.startswith('http://'):
-                url = flask.request.url.replace('http://', 'https://', 1)
-                code = 302
-                if self.force_https_permanent:
-                    code = 301
-                r = flask.redirect(url, code=code)
-                return r
 
     def _set_response_headers(self, response):
         """Applies all configured headers to the given response."""
@@ -179,9 +145,7 @@ class Talisman(object):
         if not options['feature_policy']:
             return
 
-        policy = options['feature_policy']
-
-        headers['Feature-Policy'] = policy
+        headers['Feature-Policy'] = options['feature_policy']
 
     def _set_frame_options_headers(self, headers, options):
         if not options['frame_options']:
@@ -189,8 +153,7 @@ class Talisman(object):
         headers['X-Frame-Options'] = options['frame_options']
 
         if options['frame_options'] == ALLOW_FROM:
-            headers['X-Frame-Options'] += " {}".format(
-                options['frame_options_allow_from'])
+            headers['X-Frame-Options'] += " {}".format(options['frame_options_allow_from'])
 
 
     def _set_hsts_headers(self, headers):
@@ -201,7 +164,7 @@ class Talisman(object):
         if not self.strict_transport_security or not any(criteria):
             return
 
-        value = 'max-age={}'.format(self.strict_transport_security_max_age)
+        value = f'max-age={self.strict_transport_security_max_age}'
 
         if self.strict_transport_security_include_subdomains:
             value += '; includeSubDomains'
@@ -218,8 +181,7 @@ class Talisman(object):
         """Use talisman as a decorator to configure options for a particular
         view.
 
-        Only frame_options, frame_options_allow_from, and
-        content_security_policy can be set on a per-view basis.
+        Only frame_options and frame_options_allow_from can be set on a per-view basis.
 
         Example:
 
@@ -254,7 +216,9 @@ except ImportError:  # pragma: no cover
         allowed_chars = (
             string.ascii_lowercase +
             string.ascii_uppercase +
-            string.digits)
+            string.digits
+        )
         return ''.join(
             rnd.choice(allowed_chars)
-            for _ in range(length))
+            for _ in range(length)
+        )
