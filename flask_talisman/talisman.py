@@ -56,11 +56,6 @@ class Talisman(object):
             strict_transport_security_preload=False,
             strict_transport_security_max_age=ONE_YEAR_IN_SECS,
             strict_transport_security_include_subdomains=True,
-            content_security_policy=DEFAULT_CSP_POLICY,
-            content_security_policy_report_uri=None,
-            content_security_policy_report_only=False,
-            content_security_policy_nonce_in=None,
-            legacy_content_security_policy_header=True,
             referrer_policy=DEFAULT_REFERRER_POLICY,
             session_cookie_secure=True,
             session_cookie_http_only=True):
@@ -85,17 +80,6 @@ class Talisman(object):
                 honored by the browser.
             strict_transport_security_include_subdomain: Whether to include
                 all subdomains when setting HSTS.
-            content_security_policy: A string or dictionary describing the
-                content security policy for the response.
-            content_security_policy_report_uri: A string indicating the report
-                URI used for CSP violation reports
-            content_security_policy_report_only: Whether to set the CSP header
-                as "report-only", which disables the enforcement by the browser
-                and requires a "report-uri" parameter with a backend to receive
-                the POST data
-            content_security_policy_nonce_in: A list of csp sections to include
-                a per-request nonce value in
-            legacy_content_security_policy_header: Whether to add X-CSP header
             referrer_policy: A string describing the referrer policy for the
                 response.
             session_cookie_secure: Forces the session cookie to only be sent
@@ -125,29 +109,6 @@ class Talisman(object):
         self.strict_transport_security_include_subdomains = \
             strict_transport_security_include_subdomains
 
-        if isinstance(content_security_policy, dict):
-            self.content_security_policy = OrderedDict(content_security_policy)
-        else:
-            self.content_security_policy = content_security_policy
-        self.content_security_policy_report_uri = \
-            content_security_policy_report_uri
-        self.content_security_policy_report_only = \
-            content_security_policy_report_only
-        if self.content_security_policy_report_only and \
-                self.content_security_policy_report_uri is None:
-            raise ValueError(
-                'Setting content_security_policy_report_only to True also '
-                'requires a URI to be specified in '
-                'content_security_policy_report_uri')
-        self.content_security_policy_nonce_in = (
-            content_security_policy_nonce_in or []
-        )
-
-        app.jinja_env.globals['csp_nonce'] = self._get_nonce
-
-        self.legacy_content_security_policy_header = \
-            legacy_content_security_policy_header
-
         self.referrer_policy = referrer_policy
 
         self.session_cookie_secure = session_cookie_secure
@@ -160,7 +121,6 @@ class Talisman(object):
         self.app = app
 
         app.before_request(self._force_https)
-        app.before_request(self._make_nonce)
         app.after_request(self._set_response_headers)
 
     def _get_local_options(self):
@@ -173,8 +133,6 @@ class Talisman(object):
         view_options.setdefault('frame_options', self.frame_options)
         view_options.setdefault(
             'frame_options_allow_from', self.frame_options_allow_from)
-        view_options.setdefault(
-            'content_security_policy', self.content_security_policy)
         view_options.setdefault(
             'feature_policy', self.feature_policy
         )
@@ -213,55 +171,15 @@ class Talisman(object):
         options = self._get_local_options()
         self._set_feature_headers(response.headers, options)
         self._set_frame_options_headers(response.headers, options)
-        self._set_content_security_policy_headers(response.headers, options)
         self._set_hsts_headers(response.headers)
         self._set_referrer_policy_headers(response.headers)
         return response
-
-    def _make_nonce(self):
-        local_options = self._get_local_options()
-        if (
-                local_options['content_security_policy'] and
-                self.content_security_policy_nonce_in and
-                not getattr(flask.request, 'csp_nonce', None)):
-            flask.request.csp_nonce = get_random_string(NONCE_LENGTH)
-
-    def _get_nonce(self):
-        return getattr(flask.request, 'csp_nonce', '')
-
-    def _parse_policy(self, policy):
-        if isinstance(policy, string_types):
-            # parse the string into a policy dict
-            policy_string = policy
-            policy = OrderedDict()
-
-            for policy_part in policy_string.split(';'):
-                policy_parts = policy_part.strip().split(' ')
-                policy[policy_parts[0]] = " ".join(policy_parts[1:])
-
-        policies = []
-        for section, content in iteritems(policy):
-            if not isinstance(content, string_types):
-                content = ' '.join(content)
-            policy_part = '{} {}'.format(section, content)
-
-            if (
-                    hasattr(flask.request, 'csp_nonce') and
-                    section in self.content_security_policy_nonce_in):
-                policy_part += " 'nonce-{}'".format(flask.request.csp_nonce)
-
-            policies.append(policy_part)
-
-        policy = '; '.join(policies)
-
-        return policy
 
     def _set_feature_headers(self, headers, options):
         if not options['feature_policy']:
             return
 
         policy = options['feature_policy']
-        policy = self._parse_policy(policy)
 
         headers['Feature-Policy'] = policy
 
@@ -274,31 +192,6 @@ class Talisman(object):
             headers['X-Frame-Options'] += " {}".format(
                 options['frame_options_allow_from'])
 
-    def _set_content_security_policy_headers(self, headers, options):
-        headers['X-XSS-Protection'] = '1; mode=block'
-        headers['X-Content-Type-Options'] = 'nosniff'
-
-        if self.force_file_save:
-            headers['X-Download-Options'] = 'noopen'
-
-        if not options['content_security_policy']:
-            return
-
-        policy = options['content_security_policy']
-        policy = self._parse_policy(policy)
-
-        if self.content_security_policy_report_uri and \
-                'report-uri' not in policy:
-            policy += '; report-uri ' + self.content_security_policy_report_uri
-
-        csp_header = 'Content-Security-Policy'
-        if self.content_security_policy_report_only:
-            csp_header += '-Report-Only'
-
-        headers[csp_header] = policy
-        # IE 10-11, Older Firefox.
-        if self.legacy_content_security_policy_header:
-            headers['X-' + csp_header] = policy
 
     def _set_hsts_headers(self, headers):
         criteria = [
