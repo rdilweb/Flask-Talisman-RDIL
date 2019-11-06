@@ -14,7 +14,6 @@
 from collections import OrderedDict
 
 import flask
-from six import iteritems, string_types
 
 
 DENY = 'DENY'
@@ -26,8 +25,6 @@ DEFAULT_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 DEFAULT_FEATURE_POLICY = {
 }
-
-NONCE_LENGTH = 16
 
 
 class Talisman(object):
@@ -59,7 +56,7 @@ class Talisman(object):
         Initialization.
 
         Args:
-            app: A Flask application.
+            app: The Flask instance.
             feature_policy: A string or dictionary describing the
                 feature policy for the response.
             force_https_permanent: Uses 301 instead of 302 redirects.
