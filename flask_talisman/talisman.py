@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from collections import OrderedDict
+from secrets import token_urlsafe
 
 import flask
 
-
-DENY = 'DENY'
 SAMEORIGIN = 'SAMEORIGIN'
 ALLOW_FROM = 'ALLOW-FROM'
-ONE_YEAR_IN_SECS = 31556926
 
 DEFAULT_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
@@ -31,28 +29,24 @@ class Talisman(object):
 
     def __init__(self, app=None, **kwargs):
         if app is not None:
-            self.init_app(app, **kwargs)
+            self.app = app
+            self.init_app(**kwargs)
 
     def init_app(
             self,
-            app,
             feature_policy=None,
             force_https_permanent=False,
             force_file_save=False,
             frame_options=SAMEORIGIN,
             frame_options_allow_from=None,
-            strict_transport_security=True,
-            strict_transport_security_preload=False,
-            strict_transport_security_max_age=ONE_YEAR_IN_SECS,
             referrer_policy=DEFAULT_REFERRER_POLICY,
             session_cookie_secure=True,
             session_cookie_http_only=True
-        ):
+    ):
         """
         Initialization.
 
         Args:
-            app: The Flask instance.
             feature_policy: A string or dictionary describing the
                 feature policy for the response.
             force_https_permanent: Uses 301 instead of 302 redirects.
@@ -60,11 +54,6 @@ class Talisman(object):
                 SAMEORIGIN.
             frame_options_allow_from: Used when frame_options is set to
                 ALLOW_FROM and is a string of domains to allow frame embedding.
-            strict_transport_security: Sets HSTS headers.
-            strict_transport_security_preload: Enables HSTS preload. See
-                https://hstspreload.org.
-            strict_transport_security_max_age: How long HSTS headers are
-                honored by the browser.
             referrer_policy: A string describing the referrer policy for the
                 response.
             session_cookie_secure: Forces the session cookie to only be sent
@@ -85,24 +74,16 @@ class Talisman(object):
         self.frame_options = frame_options
         self.frame_options_allow_from = frame_options_allow_from
 
-        self.strict_transport_security = strict_transport_security
-        self.strict_transport_security_preload = \
-            strict_transport_security_preload
-        self.strict_transport_security_max_age = \
-            strict_transport_security_max_age
-
         self.referrer_policy = referrer_policy
 
         self.session_cookie_secure = session_cookie_secure
 
         if session_cookie_http_only:
-            app.config['SESSION_COOKIE_HTTPONLY'] = True
+            self.app.config['SESSION_COOKIE_HTTPONLY'] = True
 
         self.force_file_save = force_file_save
 
-        self.app = app
-
-        app.after_request(self._set_response_headers)
+        self.app.after_request(self._set_response_headers)
 
     def _get_local_options(self):
         view_function = flask.current_app.view_functions.get(
@@ -124,7 +105,6 @@ class Talisman(object):
         options = self._get_local_options()
         self._set_feature_headers(response.headers, options)
         self._set_frame_options_headers(response.headers, options)
-        self._set_hsts_headers(response.headers)
         self._set_referrer_policy_headers(response.headers)
         return response
 
@@ -141,21 +121,6 @@ class Talisman(object):
 
         if options['frame_options'] == ALLOW_FROM:
             headers['X-Frame-Options'] += " {}".format(options['frame_options_allow_from'])
-
-    def _set_hsts_headers(self, headers):
-        criteria = [
-            flask.request.is_secure,
-            flask.request.headers.get('X-Forwarded-Proto', 'http') == 'https',
-        ]
-        if not self.strict_transport_security or not any(criteria):
-            return
-
-        value = f'max-age={self.strict_transport_security_max_age}'
-
-        if self.strict_transport_security_preload:
-            value += '; preload'
-
-        headers['Strict-Transport-Security'] = value
 
     def _set_referrer_policy_headers(self, headers):
         headers['Referrer-Policy'] = self.referrer_policy
@@ -180,28 +145,12 @@ class Talisman(object):
             def embeddable():
                 return 'Embeddable'
         """
+
         def decorator(f):
             setattr(f, 'talisman_view_options', kwargs)
             return f
+
         return decorator
 
 
-try:
-    import secrets
-    get_random_string = secrets.token_urlsafe  # pragma: no cover
-
-except ImportError:  # pragma: no cover
-    import random
-    import string
-    rnd = random.SystemRandom()
-
-    def get_random_string(length):
-        allowed_chars = (
-            string.ascii_lowercase +
-            string.ascii_uppercase +
-            string.digits
-        )
-        return ''.join(
-            rnd.choice(allowed_chars)
-            for _ in range(length)
-        )
+get_random_string = token_urlsafe

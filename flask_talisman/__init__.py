@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .talisman import ALLOW_FROM, DEFAULT_FEATURE_POLICY, DENY, SAMEORIGIN, Talisman
+from .talisman import ALLOW_FROM, SAMEORIGIN, Talisman
 
 __all__ = (
     'ALLOW_FROM',
-    'DEFAULT_FEATURE_POLICY',
-    'DENY',
     'SAMEORIGIN',
     'Talisman',
 )
