@@ -23,9 +23,6 @@ ONE_YEAR_IN_SECS = 31556926
 
 DEFAULT_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
-DEFAULT_FEATURE_POLICY = {
-}
-
 
 class Talisman(object):
     """
@@ -39,7 +36,7 @@ class Talisman(object):
     def init_app(
             self,
             app,
-            feature_policy=DEFAULT_FEATURE_POLICY,
+            feature_policy=None,
             force_https_permanent=False,
             force_file_save=False,
             frame_options=SAMEORIGIN,
@@ -47,7 +44,6 @@ class Talisman(object):
             strict_transport_security=True,
             strict_transport_security_preload=False,
             strict_transport_security_max_age=ONE_YEAR_IN_SECS,
-            strict_transport_security_include_subdomains=True,
             referrer_policy=DEFAULT_REFERRER_POLICY,
             session_cookie_secure=True,
             session_cookie_http_only=True
@@ -69,8 +65,6 @@ class Talisman(object):
                 https://hstspreload.org.
             strict_transport_security_max_age: How long HSTS headers are
                 honored by the browser.
-            strict_transport_security_include_subdomain: Whether to include
-                all subdomains when setting HSTS.
             referrer_policy: A string describing the referrer policy for the
                 response.
             session_cookie_secure: Forces the session cookie to only be sent
@@ -79,9 +73,9 @@ class Talisman(object):
                 session cookie.
             force_file_save: Prevents the user from opening a file download
                 directly on >= IE 8
-
-        See README.rst for a detailed description of each option.
         """
+        if feature_policy is None:
+            feature_policy = {}
         if isinstance(feature_policy, dict):
             self.feature_policy = OrderedDict(feature_policy)
         else:
@@ -96,8 +90,6 @@ class Talisman(object):
             strict_transport_security_preload
         self.strict_transport_security_max_age = \
             strict_transport_security_max_age
-        self.strict_transport_security_include_subdomains = \
-            strict_transport_security_include_subdomains
 
         self.referrer_policy = referrer_policy
 
@@ -150,7 +142,6 @@ class Talisman(object):
         if options['frame_options'] == ALLOW_FROM:
             headers['X-Frame-Options'] += " {}".format(options['frame_options_allow_from'])
 
-
     def _set_hsts_headers(self, headers):
         criteria = [
             flask.request.is_secure,
@@ -160,9 +151,6 @@ class Talisman(object):
             return
 
         value = f'max-age={self.strict_transport_security_max_age}'
-
-        if self.strict_transport_security_include_subdomains:
-            value += '; includeSubDomains'
 
         if self.strict_transport_security_preload:
             value += '; preload'

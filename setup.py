@@ -19,12 +19,12 @@ long_description = open('README.md', 'r', encoding='utf-8').read()
 
 setuptools.setup(
     name='flask-talisman-rdil',
-    version='0.7.0',
+    version='0.8.0dev',
     description='HTTP security headers for Flask.',
     long_description=long_description,
     url='https://github.com/RDIL/Flask-Talisman-RDIL',
     author='Thea Flowers - Forked by Reece Dunham',
-    #author_email='theaflowers@google.com',
+    author_email='theaflowers@google.com',
     license='Apache 2.0',
     keywords='flask security https xss',
     packages=setuptools.find_packages()
