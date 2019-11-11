@@ -60,6 +60,7 @@ class Talisman:
         if self.force_file_save:
             headers['X-Download-Options'] = 'noopen'
 
-        headers['Referrer-Policy'] = self.referrer_policy
+        if self.referrer_policy is not None:
+            headers['Referrer-Policy'] = self.referrer_policy
 
         return response
