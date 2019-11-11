@@ -19,7 +19,6 @@ class Talisman:
     def __init__(
             self,
             app=None,
-            force_https_permanent=False,
             force_file_save=False,
             referrer_policy=DEFAULT_REFERRER_POLICY,
             session_cookie_secure=True,
@@ -29,7 +28,6 @@ class Talisman:
         Initialization.
 
         Args:
-            force_https_permanent: Uses 301 instead of 302 redirects.
             referrer_policy: A string describing the referrer policy for the response.
             session_cookie_secure: Forces the session cookie to only be sent over https. Disabled in debug mode.
             session_cookie_http_only: Prevents JavaScript from reading the session cookie.
@@ -37,8 +35,6 @@ class Talisman:
         """
         if app is not None:
             self.app = app
-
-        self.force_https_permanent = force_https_permanent
 
         self.referrer_policy = referrer_policy
 
