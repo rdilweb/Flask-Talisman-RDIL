@@ -15,14 +15,18 @@ Because the license requires this, I will put the change log here:
 * **Dropped Python 2 support**
 * Added Gitpod configuration and Dockerfile
 * Cleaned up `setup.py`
-* Removed Google's content security policy, this is for a backend!
-* Removed content security policies in general
-* Removed force `HTTPS` because our hosting provider has SSL
-* Removed nonce stuff
-* HSTS was removed
+* Removed all the options except:
+
+```diff
++ force_https_permanent: Uses 301 instead of 302 redirects.
++ referrer_policy: A string describing the referrer policy for the response.
++ session_cookie_secure: Forces the session cookie to only be sent over https. Disabled in debug mode.
++ session_cookie_http_only: Prevents JavaScript from reading the session cookie.
++ force_file_save: Prevents the user from opening a file download directly on >= IE 8
+```
 
 ## Disclaimer
 
-This is not an official Google product, experimental or otherwise.
+This is not an official Google *or* RDIL product, experimental or otherwise.
 
 There is no silver bullet for web application security. Talisman can help, but security is more than just setting a few headers. Any public-facing web application should have a comprehensive approach to security.

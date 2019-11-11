@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .talisman import ALLOW_FROM, SAMEORIGIN, Talisman
+from .talisman import Talisman, DEFAULT_REFERRER_POLICY
 
 __all__ = (
-    'ALLOW_FROM',
-    'SAMEORIGIN',
     'Talisman',
+    'DEFAULT_REFERRER_POLICY'
 )
