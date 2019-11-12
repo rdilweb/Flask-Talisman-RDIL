@@ -19,9 +19,10 @@ long_description = open('README.md', 'r', encoding='utf-8').read()
 
 setuptools.setup(
     name='flask-talisman-rdil',
-    version='0.9.2dev',
+    version='0.9.3dev',
     description='HTTP security headers for Flask. (UNOFFICIAL, UNSUPPORTED)',
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url='https://github.com/RDIL/Flask-Talisman-RDIL',
     author='Thea Flowers - Forked by Reece Dunham',
     author_email='theaflowers@google.com',
