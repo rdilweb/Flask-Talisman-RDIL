@@ -15,10 +15,10 @@ Because the license requires this, I will put the change log here:
 * **Dropped Python 2 support**
 * Added Gitpod configuration and Dockerfile
 * Cleaned up `setup.py`
+* Option `referrer_policy` can be `None` to use the default
 * Removed all the options except:
 
 ```diff
-+ force_https_permanent: Uses 301 instead of 302 redirects.
 + referrer_policy: A string describing the referrer policy for the response.
 + session_cookie_secure: Forces the session cookie to only be sent over https. Disabled in debug mode.
 + session_cookie_http_only: Prevents JavaScript from reading the session cookie.
