@@ -22,7 +22,8 @@ class Talisman:
             force_file_save=False,
             referrer_policy=DEFAULT_REFERRER_POLICY,
             session_cookie_secure=True,
-            session_cookie_http_only=True
+            session_cookie_http_only=True,
+            content_type_nosniff=True
     ):
         """
         Initialization.
@@ -32,6 +33,7 @@ class Talisman:
             session_cookie_secure: Forces the session cookie to only be sent over https. Disabled in debug mode.
             session_cookie_http_only: Prevents JavaScript from reading the session cookie.
             force_file_save: Prevents the user from opening a file download directly on >= IE 8
+            content_type_nosniff: Prevents the browser from trying to detect the response type (XSS fix).
         """
         if app is not None:
             self.app = app
@@ -45,18 +47,22 @@ class Talisman:
 
         self.force_file_save = force_file_save
 
+        self.content_type_nosniff = content_type_nosniff
+
         self.app.after_request(self._set_response_headers)
 
     def _set_response_headers(self, response):
         """Applies all configured headers to the given response."""
-        headers = response.headers
 
-        headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
 
         if self.force_file_save:
-            headers['X-Download-Options'] = 'noopen'
+            response.headers['X-Download-Options'] = 'noopen'
 
         if self.referrer_policy is not None:
-            headers['Referrer-Policy'] = self.referrer_policy
+            response.headers['Referrer-Policy'] = self.referrer_policy
+
+        if self.content_type_nosniff:
+            response.headers['X-Content-Type-Options'] = 'nosniff'
 
         return response
