@@ -19,7 +19,7 @@ long_description = open('README.md', 'r', encoding='utf-8').read()
 
 setuptools.setup(
     name='flask-talisman-rdil',
-    version='0.9.3dev',
+    version='0.9.4dev',
     description='HTTP security headers for Flask. (UNOFFICIAL, UNSUPPORTED)',
     long_description=long_description,
     long_description_content_type="text/markdown",

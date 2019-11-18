@@ -24,6 +24,7 @@ Because the license requires this, I will put the change log here:
 + session_cookie_http_only: Prevents JavaScript from reading the session cookie.
 + force_file_save: Prevents the user from opening a file download directly on >= IE 8
 ```
+* Renamed the nosniff option
 
 ## Disclaimer
 
