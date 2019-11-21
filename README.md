@@ -19,10 +19,11 @@ Because the license requires this, I will put the change log here:
 * Removed all the options except:
 
 ```diff
-+ referrer_policy: A string describing the referrer policy for the response.
-+ session_cookie_secure: Forces the session cookie to only be sent over https. Disabled in debug mode.
-+ session_cookie_http_only: Prevents JavaScript from reading the session cookie.
-+ force_file_save: Prevents the user from opening a file download directly on >= IE 8
++ referrer_policy
++ session_cookie_secure
++ session_cookie_http_only
++ force_file_save
++ frame_options
 ```
 * Renamed the nosniff option
 

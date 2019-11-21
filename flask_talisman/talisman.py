@@ -23,7 +23,8 @@ class Talisman:
             referrer_policy=DEFAULT_REFERRER_POLICY,
             session_cookie_secure=True,
             session_cookie_http_only=True,
-            content_type_nosniff=True
+            content_type_nosniff=True,
+            frame_options=None
     ):
         """
         Initialization.
@@ -34,6 +35,7 @@ class Talisman:
             session_cookie_http_only: Prevents JavaScript from reading the session cookie.
             force_file_save: Prevents the user from opening a file download directly on >= IE 8
             content_type_nosniff: Prevents the browser from trying to detect the response type (XSS fix).
+            frame_options: Set the frame options header to fix clickjacking (can be None, or the string for the header).
         """
         if app is not None:
             self.app = app
@@ -48,6 +50,8 @@ class Talisman:
         self.force_file_save = force_file_save
 
         self.content_type_nosniff = content_type_nosniff
+
+        self.frame_options = frame_options
 
         self.app.after_request(self._set_response_headers)
 
@@ -64,5 +68,8 @@ class Talisman:
 
         if self.content_type_nosniff:
             response.headers['X-Content-Type-Options'] = 'nosniff'
+        
+        if self.frame_options in ["sameorigin", "deny"]:
+            response.headers['X-Frame-Options'] = self.frame_options
 
         return response
