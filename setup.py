@@ -19,8 +19,8 @@ long_description = open('README.md', 'r', encoding='utf-8').read()
 
 setuptools.setup(
     name='flask-talisman-rdil',
-    version='0.9.5dev',
-    description='HTTP security headers for Flask. (UNOFFICIAL, UNSUPPORTED)',
+    version='0.9.6',
+    description='HTTP security headers for Flask. (UNOFFICIAL, UNSUPPORTED FORK)',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/RDIL/Flask-Talisman-RDIL',
@@ -29,7 +29,7 @@ setuptools.setup(
     maintainer="Reece Dunham",
     maintainer_email="me@rdil.rocks",
     license='Apache 2.0',
-    keywords='flask security https xss fork unsupported',
+    keywords='fork unsupported',
     packages=setuptools.find_packages(),
     python_requires=">3.3"
 )
