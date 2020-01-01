@@ -68,7 +68,7 @@ class Talisman:
 
         if self.content_type_nosniff:
             response.headers['X-Content-Type-Options'] = 'nosniff'
-        
+
         if self.frame_options in ["sameorigin", "deny"]:
             response.headers['X-Frame-Options'] = self.frame_options
 

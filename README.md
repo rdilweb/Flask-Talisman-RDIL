@@ -26,6 +26,7 @@ Because the license requires this, I will put the change log here:
 + frame_options
 ```
 * Renamed the nosniff option
++ Added type defs
 
 ## Disclaimer
 
