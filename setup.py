@@ -19,7 +19,7 @@ long_description = open('README.md', 'r', encoding='utf-8').read()
 
 setuptools.setup(
     name='flask-talisman-rdil',
-    version='0.9.7',
+    version='0.9.8',
     description='HTTP security headers for Flask. (UNOFFICIAL, UNSUPPORTED FORK)',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -33,6 +33,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     python_requires=">3.3",
     package_data={
-        "flask_talisman": "py.typed"
+        "flask_talisman": ["py.typed"]
     }
 )
